@@ -1,0 +1,17 @@
+---
+layout: post
+title:      "Building a Box and Item Management SPA with JS and Rails"
+date:       2020-04-15 22:18:16 +0000
+permalink:  building_a_box_and_item_management_spa_with_js_and_rails
+---
+
+
+For my Javascript and Rails project, I decided to make an app that let's the user create and delete items in multiple boxes.
+
+The first thing to do would be to make sure that Javascript (JS) knows how to create the boxes from the JSON it'll receive from the backend, and the first thing to do *there* would be to make a Box class and a constructor method that can create a Box instance, and assign of its keys to its appropriate values, from a JS object. Then, since I decided to fetch JSON from /boxes, the index route for the boxes controller, I made a static method, createBoxes(), to handle making boxes from an array of JS objects. Then we need the boxes, and their contents, to appear on the page for the user to see, so I made another static method, renderBoxes(), which identifies the div in which I want the boxes to appear then iterates over the Box class' static all array as to run each Box instance through template(), an instance method which formats and displays the information of the Box instance it's being called on, and appends the result to the specified div element. Similarly, I made another static method makeCheckboxes() that creates a checkbox on the page for each box object in Box.all. Finally I wrapped up all of these methods into one with the static method loadBoxes(), which runs as soon as the DOM content is loaded thanks to an event listener in my index.js file, which first fetches data from the backend, using an API class I created, creates the boxes, renders the boxes on the page, then, after checking a static flag renderedCheckboxes to see if the checkboxes were already rendered, renders the checkboxes.
+
+Now that the boxes are all rendered, we can work on creating the items that go in the box. First, we should add an event listener to our form so we know when to run our createFromForm() static function. In createFromForm() we strip the values from each of the fields of our form and create an empty array for the ids of the boxes, box_ids, that the item belongs to, which we determine by iterating over the checkboxes and adding their value to box_ids. Then we format all of this data as strongParams and pass it into the static post method we have on our API class. Once we get our response from the post, we iterate through the JS instances of our box objects and add this new item to each of their items arrays. Lastly, we have to make our changes appear on the page, so we run renderBoxes().
+
+Lastly, I wanted to add the ability for the user to delete items from specific boxes and to be able to open and close the item list. To delete items, I first created an event listener to listen for the delete button to be clicked, and when it is, to pass the event on to the static deleteFromForm() method which paths to the remove_box_item method in the boxes controller which finds the appropriate BoxItem, based on the box_id and item_id passed into the url, and destroys it. To create a collapsable list, I use the same event listener to check to see if the reveal list button was clicked, then I pass the event to the static revealItemList() method, which, after identifying the correct box instance and the correct ul element to alter, will either populate the item list with the items in the box or clear it out.
+
+
